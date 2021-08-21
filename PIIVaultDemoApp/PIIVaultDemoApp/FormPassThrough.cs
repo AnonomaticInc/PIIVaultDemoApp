@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using PIIVault.Shared.Models;
 using PIIVaultDemoApp.Helpers;
@@ -67,9 +66,7 @@ namespace PIIVaultDemoApp
             }
             catch (Exception ex)
             {
-                //AddLog($"Error: {ex.Message}");
             }
-            //SetGridViewRowCount();
             tabControl1.SelectTab(tpData);
         }
 
@@ -92,7 +89,6 @@ namespace PIIVaultDemoApp
 
         private void bSaveSchema_Click(object sender, EventArgs e)
         {
-            //DataTable dtSchema = (DataTable)dgvSchema.DataSource;
             _dtSchema = ToDataTable(dgvSchema);
 
             FileHelper.ToCSV(_dtSchema, _schemaFile);
