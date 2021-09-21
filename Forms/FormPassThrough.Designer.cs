@@ -427,7 +427,6 @@ namespace PIIVaultDemoApp
             this.tbSourceSQL.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.tbSourceSQL.Size = new System.Drawing.Size(426, 216);
             this.tbSourceSQL.TabIndex = 16;
-            this.tbSourceSQL.Text = "select * from anonomatic.CustomerOrder1000 order by C_CUSTKEY;";
             // 
             // tbSourcePassword
             // 
@@ -435,7 +434,6 @@ namespace PIIVaultDemoApp
             this.tbSourcePassword.Name = "tbSourcePassword";
             this.tbSourcePassword.Size = new System.Drawing.Size(307, 23);
             this.tbSourcePassword.TabIndex = 15;
-            this.tbSourcePassword.Text = "NeilH1620#";
             this.tbSourcePassword.UseSystemPasswordChar = true;
             // 
             // tbSourceUser
@@ -444,7 +442,6 @@ namespace PIIVaultDemoApp
             this.tbSourceUser.Name = "tbSourceUser";
             this.tbSourceUser.Size = new System.Drawing.Size(307, 23);
             this.tbSourceUser.TabIndex = 14;
-            this.tbSourceUser.Text = "anonomatic";
             // 
             // tbSourceDatabase
             // 
@@ -452,7 +449,6 @@ namespace PIIVaultDemoApp
             this.tbSourceDatabase.Name = "tbSourceDatabase";
             this.tbSourceDatabase.Size = new System.Drawing.Size(307, 23);
             this.tbSourceDatabase.TabIndex = 13;
-            this.tbSourceDatabase.Text = "TPCD134G";
             // 
             // tbSourceSource
             // 
@@ -460,7 +456,6 @@ namespace PIIVaultDemoApp
             this.tbSourceSource.Name = "tbSourceSource";
             this.tbSourceSource.Size = new System.Drawing.Size(307, 23);
             this.tbSourceSource.TabIndex = 12;
-            this.tbSourceSource.Text = "volvo1.teradata.ws";
             // 
             // labelSourcePassword
             // 
@@ -507,6 +502,7 @@ namespace PIIVaultDemoApp
             this.cbSource.FormattingEnabled = true;
             this.cbSource.Items.AddRange(new object[] {
             "CSV",
+            "SQL Server",
             "Teradata"});
             this.cbSource.Location = new System.Drawing.Point(21, 195);
             this.cbSource.Name = "cbSource";

@@ -13,6 +13,7 @@ using Teradata.Client.Provider;
 using PIIVault.Shared;
 using System.IO;
 using System.Diagnostics;
+using Microsoft.Data.SqlClient;
 
 namespace PIIVaultDemoApp
 {
@@ -78,9 +79,71 @@ namespace PIIVaultDemoApp
             try
             {
                 tabControl1.SelectTab(tpData);
-                if (_sourceType == "CSV")
-                /*  Open a file open dialog to allow user to select a flat file of new data to load*/
+                switch (_sourceType)
                 {
+                    case "Teradata":
+
+                        /*  at this point we only support Teradata as a native db interface. */
+                        TdConnectionStringBuilder connectionStringBuilder = new TdConnectionStringBuilder();
+                        connectionStringBuilder.DataSource = tbSourceSource.Text.Trim();
+                        connectionStringBuilder.Database = tbSourceDatabase.Text.Trim();
+                        connectionStringBuilder.UserId = tbSourceUser.Text.Trim();
+                        connectionStringBuilder.Password = tbSourcePassword.Text.Trim();
+
+                        TdConnection connection = new TdConnection();
+                        connection.ConnectionString = connectionStringBuilder.ConnectionString;
+                        connection.Open();
+
+                        TdCommand cmd = connection.CreateCommand();
+                        cmd.CommandText = tbSourceSQL.Text;
+
+                        _dtData = new DataTable();
+                        using (TdDataReader reader = cmd.ExecuteReader())
+                        {
+                            _dtData.Load(reader);
+                            dgvData.DataSource = _dtData;
+                            int sourceRecordCount = _dtData.Rows.Count;
+                        }
+
+                        /* save the tablename so we can use it to save and restore the schema */
+                        string[] pieces = SQLHelper.GetSelectTableName(tbSourceSQL.Text).Split('.');
+                        string path = Directory.GetCurrentDirectory();
+                        _schemaFile = path + "\\" + pieces[pieces.Length - 1];
+                        RestoreSchema();
+
+                        break;
+
+                    case "SQL Server":
+
+                        SqlConnectionStringBuilder builder =   new SqlConnectionStringBuilder();
+                        builder["Data Source"] = tbSourceSource.Text.Trim();
+                        builder["integrated Security"] = false;
+                        builder["Initial Catalog"] = tbSourceDatabase.Text.Trim(); 
+                        
+                        builder.Password = tbSourcePassword.Text.Trim();
+                        builder.UserID = tbSourceUser.Text.Trim();
+
+                        string temp = builder.ConnectionString;
+
+                        SqlConnection sqlConnection = new SqlConnection(builder.ConnectionString);
+                        sqlConnection.Open();
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(tbSourceSQL.Text, builder.ConnectionString))
+                        {
+                            adapter.Fill(_dtData);
+                            dgvData.DataSource = _dtData;
+                            int sourceRecordCount = _dtData.Rows.Count;
+                        }
+
+                        /* save the tablename so we can use it to save and restore the schema */
+                        string[] sqlPieces = SQLHelper.GetSelectTableName(tbSourceSQL.Text).Split('.');
+                        string sqlPath = Directory.GetCurrentDirectory();
+                        _schemaFile = sqlPath + "\\" + sqlPieces[sqlPieces.Length - 1];
+                        RestoreSchema();
+
+                        break;
+
+                    default:
+                    /*  Open a file open dialog to allow user to select a flat file of new data to load*/
                     fileLoadData = new OpenFileDialog();
                     DialogResult dialog = fileLoadData.ShowDialog();
 
@@ -88,36 +151,7 @@ namespace PIIVaultDemoApp
                     {
                         LoadSourceDataCSV();
                     }
-                }
-                else
-                {
-                    /*  at this point we only support Teradata as a native db interface. */
-                    TdConnectionStringBuilder connectionStringBuilder = new TdConnectionStringBuilder();
-                    connectionStringBuilder.DataSource = tbSourceSource.Text.Trim();
-                    connectionStringBuilder.Database = tbSourceDatabase.Text.Trim();
-                    connectionStringBuilder.UserId = tbSourceUser.Text.Trim();
-                    connectionStringBuilder.Password = tbSourcePassword.Text.Trim();
-
-                    TdConnection connection = new TdConnection();
-                    connection.ConnectionString = connectionStringBuilder.ConnectionString;
-                    connection.Open();
-
-                    TdCommand cmd = connection.CreateCommand();
-                    cmd.CommandText = tbSourceSQL.Text;
-
-                    _dtData = new DataTable();
-                    using (TdDataReader reader = cmd.ExecuteReader())
-                    {
-                        _dtData.Load(reader);
-                        dgvData.DataSource = _dtData;
-                        int sourceRecordCount = _dtData.Rows.Count;
-                    }
-
-                    /* save the tablename so we can use it to save and restore the schema */
-                    string[] pieces = SQLHelper.GetSelectTableName(tbSourceSQL.Text).Split('.');
-                    string path = Directory.GetCurrentDirectory();
-                    _schemaFile = path + "\\" + pieces[pieces.Length - 1];
-                    RestoreSchema();
+                    break;
                 }
             }
             catch (Exception ex)
